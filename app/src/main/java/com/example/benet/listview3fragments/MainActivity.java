@@ -3,17 +3,21 @@ package com.example.benet.listview3fragments;
 import android.app.Fragment;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.nfc.Tag;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,31 +26,26 @@ import java.util.Date;
 import java.util.List;
 
 
-public class MainActivity extends FragmentActivity implements  AdapterView.OnItemClickListener {
+public class MainActivity extends FragmentActivity implements  AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
 
     public final static String SEND_ITEM="send item";
 
     private List<ItemModel> data;
     private AdapterListView adapter;
+    private ListView lista;
+    private static int position;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView lista=(ListView)findViewById(R.id.list_view);
-
-        rellenar();
-
-        adapter=new AdapterListView(this,data,R.layout.item_layout);
-
-        lista.setAdapter(adapter);
-
-        lista.setOnItemClickListener(this);
-
+        lista=(ListView)findViewById(R.id.list_view);
+        trabajarLista(0);
 
     }
 
-    public void rellenar(){
+    public void trabajarLista(int op){
+
         this.data=new ArrayList<ItemModel>();
         String[] titles=getResources().getStringArray(R.array.listaTitulos);
         String[] desc=getResources().getStringArray(R.array.descripciones);
@@ -67,6 +66,14 @@ public class MainActivity extends FragmentActivity implements  AdapterView.OnIte
 
             data.add(new ItemModel(titles[i],desc[i],lugar[i],fecha, getResources().getIdentifier(img[i],"mipmap",getPackageName())));
         }
+        adapter=new AdapterListView(this,data,R.layout.item_layout);
+
+        lista.setAdapter(adapter);
+
+        lista.setOnItemClickListener(this);
+
+        lista.setChoiceMode(lista.CHOICE_MODE_MULTIPLE_MODAL);
+        lista.setMultiChoiceModeListener(this);
 
     }
     @Override
@@ -115,6 +122,46 @@ public class MainActivity extends FragmentActivity implements  AdapterView.OnIte
             intent.putExtra(SEND_ITEM, item_selected);
             startActivity(intent);
         }
+
+    }
+
+    @Override
+    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+        mode.setTitle(data.get(position).getTitle().toString());
+        this.position=position;
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+
+        mode.getMenuInflater().inflate(R.menu.menu_contextual,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
+        switch(item.getItemId()){
+            case R.id.edit:
+                Toast.makeText(this,"EDIT TITLE "+mode.getTitle(),Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.delete:
+                Toast.makeText(this,"DELETE TITLE "+mode.getTitle(),Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return false;
+        }
+
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
 
     }
 }

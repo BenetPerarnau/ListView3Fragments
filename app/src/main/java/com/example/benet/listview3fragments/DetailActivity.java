@@ -18,6 +18,11 @@ public class DetailActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        if(findViewById(R.id.f_detail_list_land)!=null){//estamos en modo landscape
+            MainActivity a=new MainActivity();
+            a.trabajarLista(1);
+        }
+
         ImageView img=(ImageView)findViewById(R.id.img);
         TextView title=(TextView)findViewById(R.id.txtTitle);
         TextView desc=(TextView)findViewById(R.id.txtDesc);
